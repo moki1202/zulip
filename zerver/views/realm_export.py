@@ -91,7 +91,9 @@ def delete_realm_export(request: HttpRequest, user: UserProfile, export_id: int)
         raise JsonableError(_("Invalid data export ID"))
 
     export_data = orjson.loads(audit_log_entry.extra_data)
-    if export_data is None:
+    if "deleted_timestamp" in export_data:
+        raise JsonableError(_("Export already deleted"))
+    if audit_log_entry.extra_data is None:
         raise JsonableError(_("Export cannot be deleted until complete"))
     do_delete_realm_export(user, audit_log_entry)
     return json_success()
