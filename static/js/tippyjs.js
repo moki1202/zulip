@@ -1,7 +1,9 @@
 import $ from "jquery";
 import tippy, {delegate} from "tippy.js";
 
+import {$t} from "./i18n";
 import * as message_lists from "./message_lists";
+import * as popover_menus from "./popover_menus";
 import * as reactions from "./reactions";
 import * as rows from "./rows";
 import * as timerender from "./timerender";
@@ -115,6 +117,9 @@ export function initialize() {
         // so that regular users don't have to see
         // them unless they want to.
         delay: [300, 20],
+        // This ensures that the upload files tooltip
+        // doesn't hide behind the left sidebar.
+        appendTo: () => document.body,
     });
 
     delegate("body", {
@@ -183,6 +188,18 @@ export function initialize() {
         appendTo: () => document.body,
         onHidden(instance) {
             instance.destroy();
+        },
+    });
+
+    delegate("body", {
+        target: [".enter_sends_true", ".enter_sends_false"],
+        content: $t({defaultMessage: "Change send shortcut"}),
+        onShow() {
+            // Don't show tooltip if the popover is displayed.
+            if (popover_menus.compose_enter_sends_popover_displayed) {
+                return false;
+            }
+            return true;
         },
     });
 }
